@@ -1,7 +1,7 @@
 {
   "name": "automation-extension",
   "private": true,
-  "version": "0.0.0",
+  "ersion": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,12 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^4.29.7",
+    "@trpc/client": "^10.26.0",
+    "@trpc/server": "^10.26.0",
     "react": "^18.2.0",
-    "react-autosuggest": "^10.1.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-select": "^5.7.3",
+    "trpc-chrome": "^1.0.0",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.17",
+    "@tanstack/eslint-plugin-query": "^4.29.4",
     "@types/chrome": "^0.0.236",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",

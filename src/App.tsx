@@ -1,34 +1,40 @@
 // import { Tab } from '@chrome/tabs';
 import { useState } from 'react';
+import AsyncSelect from 'react-select/async';
 // alias Tab as chrome.tabs.Tab
 type Tab = chrome.tabs.Tab;
 
+import { useQuery } from '@tanstack/react-query';
 import './App.css';
 import reactLogo from './assets/react.svg';
-// function getActiveTabs(name: string) {
 async function getActiveTabs(name: string) {
   return new Promise<Tab[]>((resolve) => {
-    chrome.tabs.query({}, (tabs) => {
-      const filteredTabs = tabs.filter(
-        (tab) => tab.title?.includes(name) || tab.url?.includes(name)
-      );
-      resolve(filteredTabs);
-    });
+    chrome.tabs.query({}, (tabs) => {});
   });
 }
 
-function switchTab(tabId: number | undefined) {
-  console.log('switching to ', tabId);
-
-  if (!tabId) {
-    return;
-  }
-  chrome.tabs.update(tabId, { active: true });
+async function switchTab(tab: Tab) {
+  console.log('switching to ', tab);
+  // chrome.windows.update(tab.windowId, { focused: true });
 }
-
 function ExtPopover() {
   const [name, setName] = useState('');
   const [matchedTabs, setMatchedTabs] = useState([] as Tab[]);
+  const options = useQuery(
+    ['tab', name],
+    (name) => {
+      return new Promise<Tab[]>((resolve) => {
+        chrome.tabs.query({ title: name }, (tabs) => {
+          resolve(tabs);
+        });
+      });
+    },
+    {
+      onSuccess: (data) => {
+        setMatchedTabs(data);
+      },
+    }
+  );
 
   const getDomainFromUrl = (url: string) => {
     const parser = document.createElement('a');
@@ -54,12 +60,23 @@ function ExtPopover() {
           }}
         >
           <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              onChange={(e) => setName(e.currentTarget.value)}
-              value={name}
-              className="flex-1 px-4 py-2 border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-purple-500"
+            <AsyncSelect
+              cacheOptions
+              loadOptions={(inputValue) => {
+                chrome.tabs.query({ title: inputValue }, (tabs) => {
+                  const options = tabs.map((tab) => ({
+                    value: tab.id,
+                    label: tab.title,
+                  }));
+                });
+              }}
+              onChange={(option) => {
+                if (!option) return;
+                setName(option.label);
+              }}
+              className="flex items-center p-2 mt-4 bg-gray-200 rounded hover:bg-gray-300 w-full"
             />
+            i
             <button
               type="submit"
               className="px-4 py-2 text-white bg-purple-500 rounded-r hover:bg-purple-700"
@@ -73,7 +90,11 @@ function ExtPopover() {
             <button
               key={tab.id}
               className="flex items-center p-2 mt-4 bg-gray-200 rounded hover:bg-gray-300 w-full"
-              onClick={() => switchTab(tab.id)}
+              onClick={async () => {
+                if (!tab.id) return;
+                chrome.tabs.update(tab.id, { active: true });
+                chrome.windows.update(tab.windowId, { focused: true });
+              }}
             >
               <img src={tab.favIconUrl} alt={tab.title + ' logo'} className="w-8 h-8 " />
 

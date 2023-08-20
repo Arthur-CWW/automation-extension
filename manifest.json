@@ -1,11 +1,33 @@
 {
 	"manifest_version": 3,
-	"name": "Automation extension, tab finder",
+	"name": "Quick Tabber",
 	"version": "1.0.0",
 	"action": {
 		"default_popup": "index.html"
 	},
+	"background": {
+		"service_worker": "src/background.ts",
+		"type": "module"
+	},
 	"permissions": [
-		"tabs"
-	]
+		"tabs",
+		"windows"
+	],
+	"commands": {
+		"switcher": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+P",
+				"mac": "Command+Shift+Y"
+			},
+			"description": "Run \"foo\" on the current page."
+		},
+		"_execute_action": {
+			"suggested_key": {
+				"windows": "Ctrl+Shift+P",
+				"mac": "Command+Shift+P",
+				"chromeos": "Ctrl+Shift+U",
+				"linux": "Ctrl+Shift+J"
+			}
+		}
+	}
 }
